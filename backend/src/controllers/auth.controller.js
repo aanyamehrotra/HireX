@@ -35,7 +35,7 @@ export const signup = async (req, res) => {
         // Set cookie
         res.cookie("jwt", token, {
             httpOnly: true, // prevent XSS
-            sameSite: "strict", // prevent CSRF protected
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "strict", // "none" allows cross-site cookie
             secure: process.env.NODE_ENV !== "development",
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         });
@@ -73,7 +73,7 @@ export const login = async (req, res) => {
 
         res.cookie("jwt", token, {
             httpOnly: true,
-            sameSite: "strict",
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
             secure: process.env.NODE_ENV !== "development",
             maxAge: 7 * 24 * 60 * 60 * 1000,
         });
