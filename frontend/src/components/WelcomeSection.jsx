@@ -36,9 +36,9 @@ function WelcomeSection({ user, onCreateSession, onJoinSession }) {
           {user?.role === "interviewer" ? (
             <button
               onClick={onCreateSession}
-              className="w-full md:w-auto px-8 py-4 bg-gradient-to-r from-primary to-secondary rounded-xl text-white font-bold text-lg shadow-lg shadow-primary/20 hover:shadow-primary/40 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 group"
+              className="w-full md:w-auto px-8 py-4 bg-gradient-to-r from-primary to-secondary rounded-xl text-white font-bold text-lg shadow-lg shadow-primary/20 hover:shadow-primary/40 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-3 group z-20 relative cursor-pointer"
             >
-              <ZapIcon className="size-5 fill-white/20" />
+              <ZapIcon className="size-5 fill-white/20 group-hover:fill-white/40 transition-colors" />
               Create New Session
             </button>
           ) : (

@@ -74,6 +74,44 @@ export async function getProblemDetails(titleSlug) {
     }
 }
 
+const FALLBACK_PROBLEMS = [
+    {
+        id: "two-sum",
+        title: "Two Sum",
+        slug: "two-sum",
+        difficulty: "Easy",
+        category: "Algorithms"
+    },
+    {
+        id: "reverse-string",
+        title: "Reverse String",
+        slug: "reverse-string",
+        difficulty: "Easy",
+        category: "Algorithms"
+    },
+    {
+        id: "valid-palindrome",
+        title: "Valid Palindrome",
+        slug: "valid-palindrome",
+        difficulty: "Easy",
+        category: "Algorithms"
+    },
+    {
+        id: "maximum-subarray",
+        title: "Maximum Subarray",
+        slug: "maximum-subarray",
+        difficulty: "Medium",
+        category: "Algorithms"
+    },
+    {
+        id: "container-with-most-water",
+        title: "Container With Most Water",
+        slug: "container-with-most-water",
+        difficulty: "Medium",
+        category: "Algorithms"
+    }
+];
+
 /**
  * Fetch problems from LeetCode API
  * Caches results for 1 hour to avoid excessive API calls
@@ -95,10 +133,16 @@ async function fetchLeetCodeProblems() {
                 category: "Algorithms", // LeetCode doesn't provide category in this endpoint
             }));
 
+        if (!problems || problems.length === 0) {
+            console.log("LeetCode API returned 0 problems, employing fallback.");
+            return FALLBACK_PROBLEMS;
+        }
+
         return problems;
     } catch (error) {
         console.error("Error fetching LeetCode problems:", error.message);
-        return [];
+        console.log("Using fallback problem set.");
+        return FALLBACK_PROBLEMS;
     }
 }
 

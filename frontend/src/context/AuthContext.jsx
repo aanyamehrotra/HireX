@@ -12,6 +12,8 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
     const [authUser, setAuthUser] = useState(null);
     const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+    const [isSigningUp, setIsSigningUp] = useState(false);
+    const [isLoggingIn, setIsLoggingIn] = useState(false);
 
     // Check auth on mount
     useEffect(() => {
@@ -30,26 +32,36 @@ export const AuthProvider = ({ children }) => {
     };
 
     const register = async (data) => {
+        setIsSigningUp(true);
         try {
             const res = await axiosInstance.post("/auth/signup", data);
             setAuthUser(res.data);
             toast.success("Account created successfully");
             return true;
         } catch (error) {
-            toast.error(error.response?.data?.message || "Registration failed");
+            console.error("Signup error:", error);
+            const message = error.response?.data?.message || "Registration failed";
+            toast.error(message);
             return false;
+        } finally {
+            setIsSigningUp(false);
         }
     };
 
     const login = async (data) => {
+        setIsLoggingIn(true);
         try {
             const res = await axiosInstance.post("/auth/login", data);
             setAuthUser(res.data);
             toast.success("Logged in successfully");
             return true;
         } catch (error) {
-            toast.error(error.response?.data?.message || "Login failed");
+            console.error("Login error:", error);
+            const message = error.response?.data?.message || "Login failed";
+            toast.error(message);
             return false;
+        } finally {
+            setIsLoggingIn(false);
         }
     };
 
@@ -59,6 +71,7 @@ export const AuthProvider = ({ children }) => {
             setAuthUser(null);
             toast.success("Logged out successfully");
         } catch (error) {
+            console.error("Logout error:", error);
             toast.error("Logout failed");
         }
     };
@@ -68,6 +81,8 @@ export const AuthProvider = ({ children }) => {
             value={{
                 authUser,
                 isCheckingAuth,
+                isSigningUp,
+                isLoggingIn,
                 register,
                 login,
                 logout,
