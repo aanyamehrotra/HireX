@@ -5,6 +5,7 @@ import { Loader2, Mail, Lock, User, Briefcase, Zap } from "lucide-react";
 import toast from "react-hot-toast";
 import BackgroundSquares from "../components/BackgroundSquares";
 import GlassCard from "../components/GlassCard";
+import { GoogleLogin } from "@react-oauth/google";
 
 const SignUpPage = () => {
     const [showPassword, setShowPassword] = useState(false);
@@ -15,7 +16,7 @@ const SignUpPage = () => {
         role: "candidate", // default role
     });
 
-    const { register, isSigningUp } = useAuth();
+    const { register, googleLogin, isSigningUp } = useAuth();
 
     const validateForm = () => {
         if (!formData.name.trim()) return toast.error("Name is required");
@@ -111,8 +112,8 @@ const SignUpPage = () => {
                             <div className="grid grid-cols-2 gap-4">
                                 <div
                                     className={`relative p-4 rounded-xl border cursor-pointer transition-all ${formData.role === 'candidate'
-                                            ? 'border-primary bg-primary/10 shadow-lg shadow-primary/10 ring-1 ring-primary/50'
-                                            : 'border-white/10 bg-black/20 hover:border-white/20 hover:bg-white/5'
+                                        ? 'border-primary bg-primary/10 shadow-lg shadow-primary/10 ring-1 ring-primary/50'
+                                        : 'border-white/10 bg-black/20 hover:border-white/20 hover:bg-white/5'
                                         }`}
                                     onClick={() => setFormData({ ...formData, role: 'candidate' })}
                                 >
@@ -125,8 +126,8 @@ const SignUpPage = () => {
                                 </div>
                                 <div
                                     className={`relative p-4 rounded-xl border cursor-pointer transition-all ${formData.role === 'interviewer'
-                                            ? 'border-secondary bg-secondary/10 shadow-lg shadow-secondary/10 ring-1 ring-secondary/50'
-                                            : 'border-white/10 bg-black/20 hover:border-white/20 hover:bg-white/5'
+                                        ? 'border-secondary bg-secondary/10 shadow-lg shadow-secondary/10 ring-1 ring-secondary/50'
+                                        : 'border-white/10 bg-black/20 hover:border-white/20 hover:bg-white/5'
                                         }`}
                                     onClick={() => setFormData({ ...formData, role: 'interviewer' })}
                                 >
@@ -155,6 +156,27 @@ const SignUpPage = () => {
                             )}
                         </button>
                     </form>
+
+                    <div className="mt-6">
+                        <div className="relative">
+                            <div className="absolute inset-0 flex items-center">
+                                <div className="w-full border-t border-white/10"></div>
+                            </div>
+                            <div className="relative flex justify-center text-sm">
+                                <span className="px-2 bg-black/50 text-gray-500 rounded">Or sign up with</span>
+                            </div>
+                        </div>
+
+                        <div className="mt-6 flex justify-center">
+                            <GoogleLogin
+                                onSuccess={googleLogin}
+                                onError={() => toast.error("Google Signup Failed")}
+                                theme="filled_black"
+                                shape="pill"
+                                text="signup_with"
+                            />
+                        </div>
+                    </div>
 
                     <div className="text-center mt-6">
                         <p className="text-sm text-gray-400">

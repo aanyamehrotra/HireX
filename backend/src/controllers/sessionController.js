@@ -44,9 +44,14 @@ export async function createSession(req, res) {
   }
 }
 
-export async function getActiveSessions(_, res) {
+export async function getActiveSessions(req, res) {
   try {
-    const sessions = await Session.find({ status: { $in: ["active", "scheduled"] } })
+    const userId = req.user._id;
+
+    const sessions = await Session.find({
+      status: { $in: ["active", "scheduled"] },
+      $or: [{ host: userId }, { participant: userId }],
+    })
       .populate("host", "name profileImage email")
       .populate("participant", "name profileImage email")
       .sort({ scheduledAt: 1, createdAt: -1 }) // Sort by scheduled time first (asc), then created (desc)

@@ -1,7 +1,10 @@
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { OAuth2Client } from "google-auth-library";
 import { upsertStreamUser } from "../lib/stream.js";
+
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 export const signup = async (req, res) => {
     try {
@@ -129,5 +132,68 @@ export const getMe = async (req, res) => {
     } catch (error) {
         console.log("Error in getMe controller", error.message);
         res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
+export const googleAuth = async (req, res) => {
+    try {
+        const { token } = req.body;
+        const ticket = await client.verifyIdToken({
+            idToken: token,
+            audience: process.env.GOOGLE_CLIENT_ID,
+        });
+        const { name, email, picture, sub: googleId } = ticket.getPayload();
+
+        let user = await User.findOne({ email });
+
+        if (user) {
+            // If user exists but doesn't have googleId (e.g. signed up with email/pass), link it
+            if (!user.googleId) {
+                user.googleId = googleId;
+                if (!user.profileImage) user.profileImage = picture;
+                await user.save();
+            }
+        } else {
+            // Create new user
+            user = new User({
+                name,
+                email,
+                password: "", // User with no password
+                role: "candidate", // Default role
+                profileImage: picture,
+                googleId,
+            });
+            await user.save();
+
+            // Sync with stream
+            await upsertStreamUser({
+                id: user._id.toString(),
+                name: user.name,
+                image: user.profileImage,
+            });
+        }
+
+        const jwtToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+            expiresIn: "7d",
+        });
+
+        res.cookie("jwt", jwtToken, {
+            httpOnly: true,
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+            secure: process.env.NODE_ENV !== "development",
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+        });
+
+        res.status(200).json({
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            profileImage: user.profileImage,
+        });
+
+    } catch (error) {
+        console.log("Error in googleAuth controller", error);
+        res.status(500).json({ message: "Internal Server Error: " + error.message });
     }
 };

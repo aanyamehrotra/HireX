@@ -25,7 +25,7 @@ app.use(cookieParser()); // parse cookies
 
 // CORS configuration
 app.use(cors({
-  origin: ENV.CLIENT_URL, // Must be set in production
+  origin: [ENV.CLIENT_URL, "http://localhost:5173", "http://localhost:5174"], // Allow both ports locally
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],

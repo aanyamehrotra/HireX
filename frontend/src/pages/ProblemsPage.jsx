@@ -85,8 +85,7 @@ function ProblemsPage() {
                           </div>
                         </div>
                         <p className="text-base-content/80 mb-3">
-                          {problem.description?.text ||
-                            "Solve this coding problem to improve your skills."}
+                          {problem.description?.text}
                         </p>
                       </div>
                       {/* RIGHT SIDE */}
