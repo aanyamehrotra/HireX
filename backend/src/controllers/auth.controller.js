@@ -137,7 +137,9 @@ export const getMe = async (req, res) => {
 
 export const googleAuth = async (req, res) => {
     try {
+        console.log("Google Auth request received");
         const { token } = req.body;
+        console.log("Token received length:", token?.length);
         const ticket = await client.verifyIdToken({
             idToken: token,
             audience: process.env.GOOGLE_CLIENT_ID,

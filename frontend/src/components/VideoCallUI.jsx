@@ -3,6 +3,7 @@ import {
   CallingState,
   SpeakerLayout,
   useCallStateHooks,
+  useCall,
 } from "@stream-io/video-react-sdk";
 import { Loader2Icon, MessageSquareIcon, UsersIcon, XIcon } from "lucide-react";
 import { useState } from "react";
@@ -14,10 +15,24 @@ import "stream-chat-react/dist/css/v2/index.css";
 
 function VideoCallUI({ chatClient, channel }) {
   const navigate = useNavigate();
-  const { useCallCallingState, useParticipantCount } = useCallStateHooks();
+  const { useCallCallingState, useParticipantCount, useIsCallRecordingInProgress } = useCallStateHooks();
   const callingState = useCallCallingState();
   const participantCount = useParticipantCount();
+  const isRecording = useIsCallRecordingInProgress();
+  const call = useCall();
   const [isChatOpen, setIsChatOpen] = useState(false);
+
+  const toggleRecording = async () => {
+    try {
+      if (isRecording) {
+        await call.stopRecording();
+      } else {
+        await call.startRecording();
+      }
+    } catch (error) {
+      console.error("Failed to toggle recording", error);
+    }
+  };
 
   if (callingState === CallingState.JOINING) {
     return (
@@ -57,8 +72,15 @@ function VideoCallUI({ chatClient, channel }) {
           <SpeakerLayout />
         </div>
 
-        <div className="bg-base-100 p-3 rounded-lg shadow flex justify-center">
+        <div className="bg-base-100 p-3 rounded-lg shadow flex justify-center gap-4">
           <CallControls onLeave={() => navigate("/dashboard")} />
+          <button
+            onClick={toggleRecording}
+            className={`btn btn-circle ${isRecording ? "btn-error" : "btn-ghost"}`}
+            title={isRecording ? "Stop Recording" : "Start Recording"}
+          >
+            <div className={`rounded-full size-4 ${isRecording ? "bg-white" : "bg-red-500"}`} />
+          </button>
         </div>
       </div>
 
@@ -66,9 +88,8 @@ function VideoCallUI({ chatClient, channel }) {
 
       {chatClient && channel && (
         <div
-          className={`flex flex-col rounded-lg shadow overflow-hidden bg-[#272a30] transition-all duration-300 ease-in-out ${
-            isChatOpen ? "w-80 opacity-100" : "w-0 opacity-0"
-          }`}
+          className={`flex flex-col rounded-lg shadow overflow-hidden bg-[#272a30] transition-all duration-300 ease-in-out ${isChatOpen ? "w-80 opacity-100" : "w-0 opacity-0"
+            }`}
         >
           {isChatOpen && (
             <>

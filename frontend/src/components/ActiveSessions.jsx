@@ -84,7 +84,7 @@ function ActiveSessions({ sessions, isLoading, isUserInSession }) {
                 ) : (
                   <Link to={`/session/${session._id}`}>
                     <button className="px-4 py-2 rounded-lg bg-gradient-to-r from-primary/80 to-secondary/80 hover:from-primary hover:to-secondary text-white text-sm font-bold shadow-lg hover:shadow-primary/20 transition-all flex items-center gap-2">
-                      {isUserInSession(session) ? "Rejoin" : "Join"}
+                      {isUserInSession(session) && session.status !== "scheduled" ? "Rejoin" : "Join"}
                       <ArrowRightIcon className="size-4" />
                     </button>
                   </Link>
