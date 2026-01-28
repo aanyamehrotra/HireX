@@ -18,7 +18,7 @@ function ProblemPage() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const { data: fetchedProblem, isLoading, isError } = useProblem(id);
+  const { data: fetchedProblem, isLoading } = useProblem(id);
 
   // Use fetched problem or fallback to hardcoded if not found in API (for backward compatibility)
   const problem = fetchedProblem || PROBLEMS[id];

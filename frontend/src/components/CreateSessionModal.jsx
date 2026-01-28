@@ -11,7 +11,7 @@ function CreateSessionModal({
   onCreateRoom,
   isCreating,
 }) {
-  const { data, isLoading } = useProblems();
+  const { data } = useProblems();
   const problems = data?.problems || Object.values(PROBLEMS);
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -114,8 +114,8 @@ function CreateSessionModal({
                       <div className="flex items-center gap-2">
                         <span className="font-medium">{problem.title}</span>
                         <span className={`text-[10px] px-1.5 py-0.5 rounded border ${problem.difficulty === "easy" ? "border-success/30 text-success" :
-                            problem.difficulty === "medium" ? "border-warning/30 text-warning" :
-                              "border-error/30 text-error"
+                          problem.difficulty === "medium" ? "border-warning/30 text-warning" :
+                            "border-error/30 text-error"
                           }`}>
                           {problem.difficulty}
                         </span>

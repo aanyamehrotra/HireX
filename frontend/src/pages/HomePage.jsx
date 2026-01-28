@@ -8,6 +8,7 @@ import {
   ZapIcon,
   TerminalIcon,
 } from "lucide-react";
+// eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 import BackgroundSquares from "../components/BackgroundSquares";
 import GlassCard from "../components/GlassCard";

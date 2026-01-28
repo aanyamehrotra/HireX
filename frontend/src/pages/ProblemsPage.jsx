@@ -3,7 +3,7 @@ import Navbar from "../components/Navbar";
 import { useProblems } from "../hooks/useProblems";
 import { PROBLEMS } from "../data/problems";
 import { ChevronRightIcon, Code2Icon, Loader2Icon, Search } from "lucide-react";
-import { getDifficultyBadgeClass } from "../lib/utils";
+
 import { useState } from "react";
 
 function ProblemsPage() {

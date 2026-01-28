@@ -8,28 +8,28 @@ import {
   ClockIcon,
 } from "lucide-react";
 import { Link } from "react-router";
-import { getDifficultyBadgeClass } from "../lib/utils";
+
 import GlassCard from "./GlassCard";
 
 function ActiveSessions({ sessions, isLoading, isUserInSession }) {
   return (
     <GlassCard className="lg:col-span-2 p-6 flex flex-col h-full bg-black/20">
-      <GlassCard className="lg:col-span-2 p-6 flex flex-col h-full bg-black/20">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-gradient-to-br from-primary to-secondary rounded-lg">
-              <ZapIcon className="size-5 text-white" />
-            </div>
-            <h2 className="text-xl font-bold font-display text-white">Live Sessions</h2>
-          </div>
 
-          <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-success/10 border border-success/20">
-            <div className="size-2 bg-success rounded-full animate-pulse" />
-            <span className="text-sm font-medium text-success">{sessions.length} active</span>
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-gradient-to-br from-primary to-secondary rounded-lg">
+            <ZapIcon className="size-5 text-white" />
           </div>
+          <h2 className="text-xl font-bold font-display text-white">Live Sessions</h2>
         </div>
 
+        <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-success/10 border border-success/20">
+          <div className="size-2 bg-success rounded-full animate-pulse" />
+          <span className="text-sm font-medium text-success">{sessions.length} active</span>
+        </div>
       </div>
+
+
 
       <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
         {isLoading ? (

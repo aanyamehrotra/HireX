@@ -47,7 +47,7 @@ function SessionPage() {
     authUser // Pass real user
   );
 
-  );
+
 
   const problemData = session?.problem
     ? Object.values(PROBLEMS).find((p) => p.title === session.problem)
@@ -73,79 +73,79 @@ function SessionPage() {
       }
     });
 
-  });
-}, [session, authUser, loadingSession, isHost, isParticipant, id]);
 
-// redirect the "participant" when session ends
-useEffect(() => {
-  if (!session || loadingSession) return;
+  }, [session, authUser, loadingSession, isHost, isParticipant, id]);
 
-  if (session.status === "completed") navigate("/dashboard");
-}, [session, loadingSession, navigate]);
+  // redirect the "participant" when session ends
+  useEffect(() => {
+    if (!session || loadingSession) return;
 
-useEffect(() => {
-  if (problemData?.starterCode?.[selectedLanguage]) {
-    setCode(problemData.starterCode[selectedLanguage]);
-    setOutput(null); // Clear previous output
-  }
-}, [problemData?.title, selectedLanguage]); // Dependency on title ensures update on problem switch
+    if (session.status === "completed") navigate("/dashboard");
+  }, [session, loadingSession, navigate]);
 
-const handleLanguageChange = (e) => {
-  const newLang = e.target.value;
-  setSelectedLanguage(newLang);
-  const starterCode = problemData?.starterCode?.[newLang] || "";
-  setCode(starterCode);
-  setOutput(null);
-};
-
-const handleRunCode = async () => {
-  setIsRunning(true);
-  setOutput(null);
-
-  const result = await executeCode(selectedLanguage, code);
-  setOutput(result);
-  setIsRunning(false);
-};
-
-const handleEndSession = () => {
-  setShowEndSessionModal(true);
-};
-
-const confirmEndSession = () => {
-  setShowEndSessionModal(false);
-  endSessionMutation.mutate(id, { onSuccess: () => navigate("/dashboard") });
-};
-
-const handleCopySessionId = () => {
-  navigator.clipboard.writeText(id);
-  toast.success("Session ID copied to clipboard");
-};
-
-const handleChangeProblem = (newProblemTitle) => {
-  const newProblem = Object.values(PROBLEMS).find((p) => p.title === newProblemTitle);
-  if (!newProblem) return;
-
-  updateSessionMutation.mutate(
-    {
-      id,
-      problem: newProblem.title,
-      difficulty: newProblem.difficulty.toLowerCase(),
-    },
-    {
-      onSuccess: () => {
-        setShowChangeProblemModal(false);
-        refetch(); // Trigger refetch to update UI immediately
-      },
+  useEffect(() => {
+    if (problemData?.starterCode?.[selectedLanguage]) {
+      setCode(problemData.starterCode[selectedLanguage]);
+      setOutput(null); // Clear previous output
     }
-  );
-};
+  }, [problemData?.title, selectedLanguage]); // Dependency on title ensures update on problem switch
 
-return (
-  <div className="h-screen bg-base-100 flex flex-col">
-    <Navbar />
+  const handleLanguageChange = (e) => {
+    const newLang = e.target.value;
+    setSelectedLanguage(newLang);
+    const starterCode = problemData?.starterCode?.[newLang] || "";
+    setCode(starterCode);
+    setOutput(null);
+  };
 
-    <div className="flex-1">
-      <PanelGroup direction="horizontal">
+  const handleRunCode = async () => {
+    setIsRunning(true);
+    setOutput(null);
+
+    const result = await executeCode(selectedLanguage, code);
+    setOutput(result);
+    setIsRunning(false);
+  };
+
+  const handleEndSession = () => {
+    setShowEndSessionModal(true);
+  };
+
+  const confirmEndSession = () => {
+    setShowEndSessionModal(false);
+    endSessionMutation.mutate(id, { onSuccess: () => navigate("/dashboard") });
+  };
+
+  const handleCopySessionId = () => {
+    navigator.clipboard.writeText(id);
+    toast.success("Session ID copied to clipboard");
+  };
+
+  const handleChangeProblem = (newProblemTitle) => {
+    const newProblem = Object.values(PROBLEMS).find((p) => p.title === newProblemTitle);
+    if (!newProblem) return;
+
+    updateSessionMutation.mutate(
+      {
+        id,
+        problem: newProblem.title,
+        difficulty: newProblem.difficulty.toLowerCase(),
+      },
+      {
+        onSuccess: () => {
+          setShowChangeProblemModal(false);
+          refetch(); // Trigger refetch to update UI immediately
+        },
+      }
+    );
+  };
+
+  return (
+    <div className="h-screen bg-base-100 flex flex-col">
+      <Navbar />
+
+      <div className="flex-1">
+
         <div className="flex-1">
           <PanelGroup direction="horizontal">
             <Panel defaultSize={50} minSize={30}>
@@ -458,54 +458,55 @@ return (
                 </div>
               </div>
 
-            </div>
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-2">
-              {Object.values(PROBLEMS)
-                .filter((p) => {
-                  const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase());
-                  const matchesFilter = filterDifficulty === "all" || p.difficulty === filterDifficulty;
-                  return matchesSearch && matchesFilter;
-                })
-                .map((problem) => (
-                  <button
-                    key={problem.id}
-                    onClick={() => handleChangeProblem(problem.title)}
-                    className={`w-full text-left p-4 rounded-xl border transition-all hover:bg-base-200 flex items-center justify-between group ${session?.problem === problem.title
-                      ? "border-primary bg-primary/5"
-                      : "border-base-300 bg-base-100"
-                      }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-lg ${problem.difficulty === "easy" ? "bg-success/10 text-success" :
-                        problem.difficulty === "medium" ? "bg-warning/10 text-warning" : "bg-error/10 text-error"
-                        }`}>
-                        <Code2Icon className="size-5" />
+
+              <div className="flex-1 overflow-y-auto p-4 space-y-2">
+                {Object.values(PROBLEMS)
+                  .filter((p) => {
+                    const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase());
+                    const matchesFilter = filterDifficulty === "all" || p.difficulty === filterDifficulty;
+                    return matchesSearch && matchesFilter;
+                  })
+                  .map((problem) => (
+                    <button
+                      key={problem.id}
+                      onClick={() => handleChangeProblem(problem.title)}
+                      className={`w-full text-left p-4 rounded-xl border transition-all hover:bg-base-200 flex items-center justify-between group ${session?.problem === problem.title
+                        ? "border-primary bg-primary/5"
+                        : "border-base-300 bg-base-100"
+                        }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`p-2 rounded-lg ${problem.difficulty === "easy" ? "bg-success/10 text-success" :
+                          problem.difficulty === "medium" ? "bg-warning/10 text-warning" : "bg-error/10 text-error"
+                          }`}>
+                          <Code2Icon className="size-5" />
+                        </div>
+                        <div>
+                          <span className="font-semibold block">{problem.title}</span>
+                          <span className="text-xs text-base-content/50 capitalize">{problem.difficulty}</span>
+                        </div>
                       </div>
-                      <div>
-                        <span className="font-semibold block">{problem.title}</span>
-                        <span className="text-xs text-base-content/50 capitalize">{problem.difficulty}</span>
-                      </div>
-                    </div>
 
-                    {session?.problem === problem.title && <CheckIcon className="size-5 text-primary" />}
-                  </button>
-                ))}
-            </div>
+                      {session?.problem === problem.title && <CheckIcon className="size-5 text-primary" />}
+                    </button>
+                  ))}
+              </div>
 
-            <div className="p-4 border-t border-white/10 flex justify-end bg-base-100">
-              <button
-                onClick={() => setShowChangeProblemModal(false)}
-                className="btn btn-ghost"
-              >
-                Cancel
-              </button>
+              <div className="p-4 border-t border-white/10 flex justify-end bg-base-100">
+                <button
+                  onClick={() => setShowChangeProblemModal(false)}
+                  className="btn btn-ghost"
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-  </div>
-);
+        )}
+      </div>
+    </div>
+  );
 }
 
 export default SessionPage;

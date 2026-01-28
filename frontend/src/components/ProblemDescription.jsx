@@ -1,5 +1,5 @@
 import { getDifficultyBadgeClass } from "../lib/utils";
-function ProblemDescription({ problem, currentProblemId }) {
+function ProblemDescription({ problem }) {
   return (
     <div className="h-full flex flex-col bg-base-100">
       {/* HEADER SECTION */}

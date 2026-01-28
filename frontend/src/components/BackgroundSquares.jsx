@@ -1,9 +1,9 @@
 import { useRef, useEffect, useState } from "react";
-import { motion, useAnimation } from "framer-motion";
+// eslint-disable-next-line no-unused-vars
+import { motion } from "framer-motion";
 
 function BackgroundSquares({
-    direction = "right",
-    speed = 0.5,
+
     borderColor = "#333", // Darker border for subtlety
     squareSize = 40,
     hoverFillColor = "#222",
@@ -56,7 +56,7 @@ function BackgroundSquares({
     );
 }
 
-const Square = ({ size, hoverFillColor }) => {
+const Square = ({ size }) => {
     const [isHovered, setIsHovered] = useState(false);
 
     return (
