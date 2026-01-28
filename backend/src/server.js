@@ -25,7 +25,12 @@ app.use(cookieParser()); // parse cookies
 
 // CORS configuration
 app.use(cors({
-  origin: [ENV.CLIENT_URL, "http://localhost:5173", "http://localhost:5174"], // Allow both ports locally
+  origin: [
+    "https://hire-x-pearl.vercel.app",
+    ENV.CLIENT_URL,
+    "http://localhost:5173",
+    "http://localhost:5174"
+  ].filter(Boolean), // Filter ensures no undefined/null values break CORS
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
