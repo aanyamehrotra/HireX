@@ -15,7 +15,6 @@ export const AuthProvider = ({ children }) => {
     const [isSigningUp, setIsSigningUp] = useState(false);
     const [isLoggingIn, setIsLoggingIn] = useState(false);
 
-    // Check auth on mount
     useEffect(() => {
         checkAuth();
     }, []);

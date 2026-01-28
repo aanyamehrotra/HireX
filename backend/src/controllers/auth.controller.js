@@ -35,14 +35,12 @@ export const signup = async (req, res) => {
             email,
             password: hashedPassword,
             role,
-            profileImage: "", // Can be updated later
+            profileImage: "",
         });
 
-        // Create user in database
         await user.save();
         console.log("User created successfully:", user._id);
 
-        // Sync user to Stream
         await upsertStreamUser({
             id: user._id.toString(),
             name: user.name,
@@ -53,12 +51,11 @@ export const signup = async (req, res) => {
             expiresIn: "7d",
         });
 
-        // Set cookie
         res.cookie("jwt", token, {
-            httpOnly: true, // prevent XSS
-            sameSite: process.env.NODE_ENV === "production" ? "none" : "strict", // "none" allows cross-site cookie
+            httpOnly: true,
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
             secure: process.env.NODE_ENV !== "development",
-            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+            maxAge: 7 * 24 * 60 * 60 * 1000,
         });
 
         res.status(201).json({
@@ -149,25 +146,22 @@ export const googleAuth = async (req, res) => {
         let user = await User.findOne({ email });
 
         if (user) {
-            // If user exists but doesn't have googleId (e.g. signed up with email/pass), link it
             if (!user.googleId) {
                 user.googleId = googleId;
                 if (!user.profileImage) user.profileImage = picture;
                 await user.save();
             }
         } else {
-            // Create new user
             user = new User({
                 name,
                 email,
-                password: "", // User with no password
-                role: "candidate", // Default role
+                password: "",
+                role: "candidate",
                 profileImage: picture,
                 googleId,
             });
             await user.save();
 
-            // Sync with stream
             await upsertStreamUser({
                 id: user._id.toString(),
                 name: user.name,

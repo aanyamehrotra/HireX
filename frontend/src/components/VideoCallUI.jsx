@@ -48,43 +48,43 @@ function VideoCallUI({ chatClient, channel }) {
   return (
     <div className="h-full flex gap-3 relative str-video">
       <div className="flex-1 flex flex-col gap-3">
-        {/* Participants count badge and Chat Toggle */}
-        <div className="flex items-center justify-between gap-2 bg-base-100 p-3 rounded-lg shadow">
-          <div className="flex items-center gap-2">
-            <UsersIcon className="w-5 h-5 text-primary" />
-            <span className="font-semibold">
-              {participantCount} {participantCount === 1 ? "participant" : "participants"}
-            </span>
+        <div className="flex-1 flex flex-col gap-3">
+          <div className="flex items-center justify-between gap-2 bg-base-100 p-3 rounded-lg shadow">
+            <div className="flex items-center gap-2">
+              <UsersIcon className="w-5 h-5 text-primary" />
+              <span className="font-semibold">
+                {participantCount} {participantCount === 1 ? "participant" : "participants"}
+              </span>
+            </div>
+            {chatClient && channel && (
+              <button
+                onClick={() => setIsChatOpen(!isChatOpen)}
+                className={`btn btn-sm gap-2 ${isChatOpen ? "btn-primary" : "btn-ghost"}`}
+                title={isChatOpen ? "Hide chat" : "Show chat"}
+              >
+                <MessageSquareIcon className="size-4" />
+                Chat
+              </button>
+            )}
           </div>
-          {chatClient && channel && (
+
+          <div className="flex-1 bg-base-300 rounded-lg overflow-hidden relative">
+            <SpeakerLayout />
+          </div>
+
+          <div className="bg-base-100 p-3 rounded-lg shadow flex justify-center gap-4">
+            <CallControls onLeave={() => navigate("/dashboard")} />
             <button
-              onClick={() => setIsChatOpen(!isChatOpen)}
-              className={`btn btn-sm gap-2 ${isChatOpen ? "btn-primary" : "btn-ghost"}`}
-              title={isChatOpen ? "Hide chat" : "Show chat"}
+              onClick={toggleRecording}
+              className={`btn btn-circle ${isRecording ? "btn-error" : "btn-ghost"}`}
+              title={isRecording ? "Stop Recording" : "Start Recording"}
             >
-              <MessageSquareIcon className="size-4" />
-              Chat
+              <div className={`rounded-full size-4 ${isRecording ? "bg-white" : "bg-red-500"}`} />
             </button>
-          )}
+          </div>
         </div>
 
-        <div className="flex-1 bg-base-300 rounded-lg overflow-hidden relative">
-          <SpeakerLayout />
-        </div>
-
-        <div className="bg-base-100 p-3 rounded-lg shadow flex justify-center gap-4">
-          <CallControls onLeave={() => navigate("/dashboard")} />
-          <button
-            onClick={toggleRecording}
-            className={`btn btn-circle ${isRecording ? "btn-error" : "btn-ghost"}`}
-            title={isRecording ? "Stop Recording" : "Start Recording"}
-          >
-            <div className={`rounded-full size-4 ${isRecording ? "bg-white" : "bg-red-500"}`} />
-          </button>
-        </div>
       </div>
-
-      {/* CHAT SECTION */}
 
       {chatClient && channel && (
         <div

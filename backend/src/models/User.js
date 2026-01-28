@@ -13,12 +13,12 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: false, // Optional for Google Auth users
+      required: false,
     },
     googleId: {
       type: String,
       unique: true,
-      sparse: true, // Only enforce uniqueness for documents that have this field
+      sparse: true,
     },
     role: {
       type: String,
@@ -34,10 +34,10 @@ const userSchema = new mongoose.Schema(
       default: "",
     },
     clerkId: {
-      type: String, // Kept for backward compatibility or optional external auth
+      type: String,
     },
   },
-  { timestamps: true } // createdAt, updatedAt
+  { timestamps: true }
 );
 
 const User = mongoose.model("User", userSchema);

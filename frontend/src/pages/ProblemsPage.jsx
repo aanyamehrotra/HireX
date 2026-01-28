@@ -10,16 +10,13 @@ function ProblemsPage() {
   const { data, isLoading, isError } = useProblems();
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Use LeetCode API if available, otherwise fallback to hardcoded
   const allProblems = data?.problems || Object.values(PROBLEMS);
 
-  // Filter based on search query (Case Insensitive)
   const filteredProblems = allProblems.filter((problem) =>
     problem.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     problem.category?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Group by difficulty
   const easyProblems = filteredProblems.filter(p => p.difficulty.toLowerCase() === "easy");
   const mediumProblems = filteredProblems.filter(p => p.difficulty.toLowerCase() === "medium");
   const hardProblems = filteredProblems.filter(p => p.difficulty.toLowerCase() === "hard");
@@ -66,7 +63,6 @@ function ProblemsPage() {
       <Navbar />
 
       <div className="max-w-6xl mx-auto px-4 py-12">
-        {/* HEADER & SEARCH */}
         <div className="mb-10 text-center">
           <h1 className="text-4xl font-bold mb-3">Practice Problems</h1>
           <p className="text-base-content/70 mb-8">
@@ -87,14 +83,12 @@ function ProblemsPage() {
           </div>
         </div>
 
-        {/* LOADING STATE */}
         {isLoading && (
           <div className="flex items-center justify-center py-20">
             <Loader2Icon className="w-12 h-12 animate-spin text-primary" />
           </div>
         )}
 
-        {/* ERROR STATE */}
         {isError && (
           <div className="alert alert-warning mb-8 max-w-2xl mx-auto flex justify-center">
             <span>
@@ -103,11 +97,9 @@ function ProblemsPage() {
           </div>
         )}
 
-        {/* CONTENT */}
         {!isLoading && (
           <div className="space-y-12">
 
-            {/* EASY SECTION */}
             {easyProblems.length > 0 && (
               <section>
                 <div className="flex items-center gap-2 mb-4 border-b border-base-300 pb-2">
@@ -121,7 +113,6 @@ function ProblemsPage() {
               </section>
             )}
 
-            {/* MEDIUM SECTION */}
             {mediumProblems.length > 0 && (
               <section>
                 <div className="flex items-center gap-2 mb-4 border-b border-base-300 pb-2">
@@ -135,7 +126,6 @@ function ProblemsPage() {
               </section>
             )}
 
-            {/* HARD SECTION */}
             {hardProblems.length > 0 && (
               <section>
                 <div className="flex items-center gap-2 mb-4 border-b border-base-300 pb-2">
@@ -149,7 +139,6 @@ function ProblemsPage() {
               </section>
             )}
 
-            {/* NO RESULTS */}
             {filteredProblems.length === 0 && (
               <div className="text-center py-10">
                 <p className="text-gray-500 text-lg">No problems found matching "{searchQuery}"</p>
