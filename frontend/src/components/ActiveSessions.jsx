@@ -5,6 +5,7 @@ import {
   UsersIcon,
   ZapIcon,
   LoaderIcon,
+  ClockIcon,
 } from "lucide-react";
 import { Link } from "react-router";
 import { getDifficultyBadgeClass } from "../lib/utils";
@@ -46,21 +47,33 @@ function ActiveSessions({ sessions, isLoading, isUserInSession }) {
                 </div>
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-semibold text-white truncate">{session.problem}</h3>
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${session.difficulty === 'hard' ? 'bg-red-500/20 text-red-400' :
+                    <h3 className="font-semibold text-white truncate">{session.problem || "No Problem Selected (Empty)"}</h3>
+                    {session.status === "scheduled" ? (
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-blue-500/20 text-blue-400 border border-blue-500/20 flex items-center gap-1">
+                        <ClockIcon className="size-3" /> Scheduled
+                      </span>
+                    ) : (
+                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${session.difficulty === 'hard' ? 'bg-red-500/20 text-red-400' :
                         session.difficulty === 'medium' ? 'bg-yellow-500/20 text-yellow-400' :
-                          'bg-green-500/20 text-green-400'
-                      }`}>
-                      {session.difficulty}
-                    </span>
+                          session.difficulty === 'easy' ? 'bg-green-500/20 text-green-400' : 'bg-gray-500/20 text-gray-400'
+                        }`}>
+                        {session.difficulty || "Any"}
+                      </span>
+                    )}
                   </div>
                   <div className="flex items-center gap-3 text-sm text-gray-500">
                     <span className="flex items-center gap-1">
                       <CrownIcon className="size-3" /> {session.host?.name}
                     </span>
-                    <span className="flex items-center gap-1">
-                      <UsersIcon className="size-3" /> {session.participant ? "2/2" : "1/2"}
-                    </span>
+                    {session.status === "scheduled" && session.scheduledAt ? (
+                      <span className="text-gray-400 font-mono text-xs">
+                        {new Date(session.scheduledAt).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1">
+                        <UsersIcon className="size-3" /> {session.participant ? "2/2" : "1/2"}
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>

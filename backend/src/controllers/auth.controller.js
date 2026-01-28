@@ -1,6 +1,7 @@
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { upsertStreamUser } from "../lib/stream.js";
 
 export const signup = async (req, res) => {
     try {
@@ -34,8 +35,16 @@ export const signup = async (req, res) => {
             profileImage: "", // Can be updated later
         });
 
+        // Create user in database
         await user.save();
         console.log("User created successfully:", user._id);
+
+        // Sync user to Stream
+        await upsertStreamUser({
+            id: user._id.toString(),
+            name: user.name,
+            image: user.profileImage,
+        });
 
         const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
             expiresIn: "7d",

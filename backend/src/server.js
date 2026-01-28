@@ -3,9 +3,7 @@ import path from "path";
 import cors from "cors";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
-// Commented out for development without Clerk
-// import { serve } from "inngest/express";
-// import { clerkMiddleware } from "@clerk/express";
+
 
 import { ENV } from "./lib/env.js";
 import { connectDB } from "./lib/db.js";
@@ -33,11 +31,7 @@ app.use(cors({
   allowedHeaders: ["Content-Type", "Authorization"],
 }));
 
-// Clerk middleware disabled for development
-// app.use(clerkMiddleware()); // this adds auth field to request object: req.auth()
 
-// Inngest webhooks disabled for development (no Clerk user sync needed)
-// app.use("/api/inngest", serve({ client: inngest, functions }));
 app.use("/api/chat", chatRoutes);
 app.use("/api/sessions", sessionRoutes);
 app.use("/api/problems", problemsRoutes);

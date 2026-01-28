@@ -3,19 +3,22 @@ import Session from "../models/Session.js";
 
 export async function createSession(req, res) {
   try {
-    const { problem, difficulty } = req.body;
+    const { problem, difficulty, scheduledAt } = req.body;
     const userId = req.user._id.toString();
     const user = req.user;
 
-    if (!problem || !difficulty) {
-      return res.status(400).json({ message: "Problem and difficulty are required" });
+    // validate scheduledAt if present
+    if (scheduledAt && new Date(scheduledAt) < new Date()) {
+      return res.status(400).json({ message: "Scheduled time must be in the future" });
     }
+
+    const status = scheduledAt ? "scheduled" : "active";
 
     // generate a unique call id for stream video
     const callId = `session_${Date.now()}_${Math.random().toString(36).substring(7)}`;
 
     // create session in db
-    const session = await Session.create({ problem, difficulty, host: userId, callId });
+    const session = await Session.create({ problem, difficulty, host: userId, callId, status, scheduledAt });
 
     // create stream video call
     await streamClient.video.call("default", callId).getOrCreate({
@@ -43,10 +46,10 @@ export async function createSession(req, res) {
 
 export async function getActiveSessions(_, res) {
   try {
-    const sessions = await Session.find({ status: "active" })
+    const sessions = await Session.find({ status: { $in: ["active", "scheduled"] } })
       .populate("host", "name profileImage email")
       .populate("participant", "name profileImage email")
-      .sort({ createdAt: -1 })
+      .sort({ scheduledAt: 1, createdAt: -1 }) // Sort by scheduled time first (asc), then created (desc)
       .limit(20);
 
     res.status(200).json({ sessions });
@@ -100,6 +103,17 @@ export async function joinSession(req, res) {
     const session = await Session.findById(id);
 
     if (!session) return res.status(404).json({ message: "Session not found" });
+
+    if (session.status === "scheduled") {
+      const now = new Date();
+      if (session.scheduledAt && new Date(session.scheduledAt) > now) {
+        return res.status(403).json({ message: "Session has not started yet", scheduledAt: session.scheduledAt });
+      } else {
+        // Auto-start the session if time has passed
+        session.status = "active";
+        await session.save();
+      }
+    }
 
     if (session.status !== "active") {
       return res.status(400).json({ message: "Cannot join a completed session" });

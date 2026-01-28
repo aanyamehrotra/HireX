@@ -7,7 +7,7 @@ import { executeCode } from "../lib/piston";
 import Navbar from "../components/Navbar";
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { getDifficultyBadgeClass } from "../lib/utils";
-import { CopyIcon, Loader2Icon, LogOutIcon, PencilIcon, PhoneOffIcon, RefreshCwIcon } from "lucide-react";
+import { Code2Icon, CopyIcon, Loader2Icon, LogOutIcon, PencilIcon, PhoneOffIcon, RefreshCwIcon, SearchIcon, CheckIcon } from "lucide-react";
 import CodeEditorPanel from "../components/CodeEditorPanel";
 import OutputPanel from "../components/OutputPanel";
 
@@ -25,6 +25,9 @@ function SessionPage() {
   const [isRunning, setIsRunning] = useState(false);
   const [showEndSessionModal, setShowEndSessionModal] = useState(false);
   const [showChangeProblemModal, setShowChangeProblemModal] = useState(false);
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterDifficulty, setFilterDifficulty] = useState("all");
 
   const { data: sessionData, isLoading: loadingSession, refetch } = useSessionById(id);
 
@@ -54,11 +57,22 @@ function SessionPage() {
   const [code, setCode] = useState("");
 
   // auto-join session if user is not already a participant and not the host
+  // auto-join session if user is not already a participant and not the host
   useEffect(() => {
     if (!session || !authUser || loadingSession) return;
     if (isHost || isParticipant) return;
 
-    joinSessionMutation.mutate(id, { onSuccess: refetch });
+    joinSessionMutation.mutate(id, {
+      onSuccess: () => {
+        refetch();
+        toast.success("Joined session successfully");
+      },
+      onError: (err) => {
+        toast.error(err.response?.data?.message || "Failed to join session");
+        // If session is full or completed, redirect or show error state logic could go here
+        // For now, toast is sufficient feedback as the user will remain in read-only/error state
+      }
+    });
 
     // remove the joinSessionMutation, refetch from dependencies to avoid infinite loop
   }, [session, authUser, loadingSession, isHost, isParticipant, id]);
@@ -147,7 +161,7 @@ function SessionPage() {
                     <div className="flex items-start justify-between mb-3">
                       <div>
                         <h1 className="text-3xl font-bold text-base-content flex items-center gap-2">
-                          {session?.problem || "Loading..."}
+                          {session?.problem || "No Problem Selected"}
                           {isHost && session?.status === "active" && (
                             <button
                               className="btn btn-ghost btn-xs btn-circle opacity-50 hover:opacity-100 transition-opacity"
@@ -158,36 +172,56 @@ function SessionPage() {
                             </button>
                           )}
                         </h1>
-                        {problemData?.category && (
-                          <p className="text-base-content/60 mt-1">{problemData.category}</p>
+                        {!session?.problem ? (
+                          <p className="text-base-content/60 mt-1">Pick a question to get started</p>
+                        ) : (
+                          problemData?.category && <p className="text-base-content/60 mt-1">{problemData.category}</p>
                         )}
                         <div className="flex flex-wrap items-center gap-4 text-base-content/60 mt-2">
                           <p>
                             Host: {session?.host?.name || "Loading..."} •{" "}
                             {session?.participant ? 2 : 1}/2 participants
                           </p>
-                          <div className="flex items-center gap-1 bg-base-200 px-2 py-1 rounded-md text-xs">
-                            <span className="font-mono">{id}</span>
+                          <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1 bg-base-200 px-2 py-1 rounded-md text-xs">
+                              <span className="font-mono">{id}</span>
+                              <button
+                                onClick={handleCopySessionId}
+                                className="hover:text-primary transition-colors p-1"
+                                title="Copy Session ID"
+                              >
+                                <CopyIcon className="w-3 h-3" />
+                              </button>
+                            </div>
+
+                            {/* SHARE BUTTON */}
                             <button
-                              onClick={handleCopySessionId}
-                              className="hover:text-primary transition-colors p-1"
-                              title="Copy Session ID"
+                              onClick={() => {
+                                const url = `${window.location.origin}/session/${id}`;
+                                navigator.clipboard.writeText(url);
+                                toast.success("Link copied to clipboard");
+                              }}
+                              className="btn btn-xs btn-primary btn-outline gap-1"
                             >
                               <CopyIcon className="w-3 h-3" />
+                              Share Link
                             </button>
                           </div>
+
                         </div>
                       </div>
 
                       <div className="flex items-center gap-3">
-                        <span
-                          className={`badge badge-lg ${getDifficultyBadgeClass(
-                            session?.difficulty
-                          )}`}
-                        >
-                          {session?.difficulty.slice(0, 1).toUpperCase() +
-                            session?.difficulty.slice(1) || "Easy"}
-                        </span>
+                        {session?.difficulty && (
+                          <span
+                            className={`badge badge-lg ${getDifficultyBadgeClass(
+                              session?.difficulty
+                            )}`}
+                          >
+                            {session?.difficulty.slice(0, 1).toUpperCase() +
+                              session?.difficulty.slice(1) || "Easy"}
+                          </span>
+                        )}
                         {isHost && session?.status === "active" && (
                           <button
                             onClick={handleEndSession}
@@ -210,6 +244,31 @@ function SessionPage() {
                   </div>
 
                   <div className="p-6 space-y-6">
+                    {/* EMPTY STATE */}
+                    {!problemData && isHost && (
+                      <div className="text-center py-10 px-4 bg-base-100 rounded-xl border border-base-300 shadow-sm border-dashed">
+                        <div className="bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <Code2Icon className="w-8 h-8 text-primary" />
+                        </div>
+                        <h3 className="text-xl font-bold mb-2">No Question Selected</h3>
+                        <p className="text-base-content/70 mb-6 max-w-sm mx-auto">
+                          Start solving by selecting a coding problem from our library. You can switch questions at any time.
+                        </p>
+                        <button
+                          onClick={() => setShowChangeProblemModal(true)}
+                          className="btn btn-primary"
+                        >
+                          Pick a Question
+                        </button>
+                      </div>
+                    )}
+
+                    {!problemData && !isHost && (
+                      <div className="text-center py-10 px-4">
+                        <h3 className="text-lg font-semibold text-base-content/50">Waiting for host to select a problem...</h3>
+                      </div>
+                    )}
+
                     {/* problem desc */}
                     {problemData?.description && (
                       <div className="bg-base-100 rounded-xl shadow-sm p-5 border border-base-300">
@@ -348,7 +407,7 @@ function SessionPage() {
 
       {/* End Session Confirmation Modal */}
       {showEndSessionModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] backdrop-blur-sm">
           <div className="bg-base-100 rounded-2xl p-6 max-w-md w-full mx-4 shadow-xl">
             <h3 className="text-2xl font-bold mb-4">End Session?</h3>
             <p className="text-base-content/70 mb-6">
@@ -381,40 +440,74 @@ function SessionPage() {
       )}
       {/* Change Problem Modal */}
       {showChangeProblemModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-base-100 rounded-2xl p-6 max-w-md w-full mx-4 shadow-xl">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-2xl font-bold">Change Problem</h3>
-              <button
-                onClick={() => setShowChangeProblemModal(false)}
-                className="btn btn-ghost btn-circle btn-sm"
-              >
-                ✕
-              </button>
-            </div>
-            <p className="text-base-content/70 mb-4">
-              Switching the problem will update the session for all participants.
-            </p>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999] backdrop-blur-sm p-4">
+          <div className="bg-base-100 rounded-2xl max-w-2xl w-full shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
 
-            <div className="space-y-2 mb-6 max-h-[60vh] overflow-y-auto">
-              {Object.values(PROBLEMS).map((problem) => (
-                <button
-                  key={problem.id}
-                  onClick={() => handleChangeProblem(problem.title)}
-                  className={`w-full text-left p-3 rounded-lg border transition-all hover:border-primary flex items-center justify-between ${session?.problem === problem.title
-                      ? "border-primary bg-primary/10"
-                      : "border-base-300"
-                    }`}
-                >
-                  <span className="font-medium">{problem.title}</span>
-                  <span className={`badge badge-sm ${getDifficultyBadgeClass(problem.difficulty)}`}>
-                    {problem.difficulty}
-                  </span>
-                </button>
-              ))}
+            {/* MODAL HEADER */}
+            <div className="p-4 border-b border-white/10 flex items-center justify-center relative bg-base-100 z-10">
+              <h3 className="text-xl font-bold">Change Problem</h3>
+              <button className="btn btn-ghost btn-circle btn-sm absolute right-4" onClick={() => setShowChangeProblemModal(false)}>✕</button>
             </div>
 
-            <div className="flex justify-end">
+            {/* SEARCH & FILTERS */}
+            <div className="p-4 border-b border-white/5 space-y-4 bg-base-200/50">
+              {/* SEARCH INPUT */}
+              <div className="relative">
+                <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 size-4" />
+                <input
+                  type="text"
+                  placeholder="Search by title..."
+                  className="input input-bordered w-full pl-10 bg-base-100 focus:outline-none focus:border-primary"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  autoFocus
+                />
+              </div>
+
+              {/* FILTER PILLS */}
+              <div className="flex gap-2">
+                <button onClick={() => setFilterDifficulty("all")} className={`btn btn-xs rounded-full ${filterDifficulty === "all" ? "btn-primary" : "btn-ghost"}`}>All</button>
+                <button onClick={() => setFilterDifficulty("easy")} className={`btn btn-xs rounded-full ${filterDifficulty === "easy" ? "btn-success btn-outline" : "btn-ghost"}`}>Easy</button>
+                <button onClick={() => setFilterDifficulty("medium")} className={`btn btn-xs rounded-full ${filterDifficulty === "medium" ? "btn-warning btn-outline" : "btn-ghost"}`}>Medium</button>
+                <button onClick={() => setFilterDifficulty("hard")} className={`btn btn-xs rounded-full ${filterDifficulty === "hard" ? "btn-error btn-outline" : "btn-ghost"}`}>Hard</button>
+              </div>
+            </div>
+
+            {/* PROBLEM LIST */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-2">
+              {Object.values(PROBLEMS)
+                .filter((p) => {
+                  const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase());
+                  const matchesFilter = filterDifficulty === "all" || p.difficulty === filterDifficulty;
+                  return matchesSearch && matchesFilter;
+                })
+                .map((problem) => (
+                  <button
+                    key={problem.id}
+                    onClick={() => handleChangeProblem(problem.title)}
+                    className={`w-full text-left p-4 rounded-xl border transition-all hover:bg-base-200 flex items-center justify-between group ${session?.problem === problem.title
+                      ? "border-primary bg-primary/5"
+                      : "border-base-300 bg-base-100"
+                      }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`p-2 rounded-lg ${problem.difficulty === "easy" ? "bg-success/10 text-success" :
+                        problem.difficulty === "medium" ? "bg-warning/10 text-warning" : "bg-error/10 text-error"
+                        }`}>
+                        <Code2Icon className="size-5" />
+                      </div>
+                      <div>
+                        <span className="font-semibold block">{problem.title}</span>
+                        <span className="text-xs text-base-content/50 capitalize">{problem.difficulty}</span>
+                      </div>
+                    </div>
+
+                    {session?.problem === problem.title && <CheckIcon className="size-5 text-primary" />}
+                  </button>
+                ))}
+            </div>
+
+            <div className="p-4 border-t border-white/10 flex justify-end bg-base-100">
               <button
                 onClick={() => setShowChangeProblemModal(false)}
                 className="btn btn-ghost"

@@ -4,12 +4,12 @@ const sessionSchema = new mongoose.Schema(
   {
     problem: {
       type: String,
-      required: true,
+      default: "",
     },
     difficulty: {
       type: String,
-      enum: ["easy", "medium", "hard"],
-      required: true,
+      enum: ["easy", "medium", "hard", ""], // allow empty string
+      default: "",
     },
     host: {
       type: mongoose.Schema.Types.ObjectId,
@@ -21,9 +21,13 @@ const sessionSchema = new mongoose.Schema(
       ref: "User",
       default: null,
     },
+    scheduledAt: {
+      type: Date,
+      default: null,
+    },
     status: {
       type: String,
-      enum: ["active", "completed"],
+      enum: ["active", "completed", "scheduled"],
       default: "active",
     },
     // stream video call ID

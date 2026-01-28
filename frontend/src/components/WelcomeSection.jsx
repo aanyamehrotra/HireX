@@ -5,10 +5,24 @@ import GlassCard from "./GlassCard";
 function WelcomeSection({ user, onCreateSession, onJoinSession }) {
   const [sessionId, setSessionId] = useState("");
 
+  /* handleJoin: parse URL if pasted, otherwise use ID */
   const handleJoin = () => {
-    if (sessionId.trim()) {
-      onJoinSession(sessionId);
+    if (!sessionId.trim()) return;
+
+    // Basic extract logic: split by slash and take last part, or use as is
+    // Works for: "http://localhost:5173/session/123" -> "123"
+    // Works for: "123" -> "123"
+    let idToJoin = sessionId.trim();
+    if (idToJoin.includes("/session/")) {
+      const parts = idToJoin.split("/session/");
+      idToJoin = parts[parts.length - 1]; // take the last part
+    } else if (idToJoin.includes("/")) {
+      // if generic url, try last segment
+      const parts = idToJoin.split("/");
+      idToJoin = parts[parts.length - 1];
     }
+
+    onJoinSession(idToJoin);
   };
 
   return (

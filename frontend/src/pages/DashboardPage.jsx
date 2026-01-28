@@ -25,18 +25,25 @@ function DashboardPage() {
   const { data: activeSessionsData, isLoading: loadingActiveSessions } = useActiveSessions();
   const { data: recentSessionsData, isLoading: loadingRecentSessions } = useMyRecentSessions();
 
-  const handleCreateRoom = () => {
-    if (!roomConfig.problem || !roomConfig.difficulty) return;
-
+  const handleCreateRoom = (data) => {
+    // data contains problem, difficulty, and scheduledAt
     createSessionMutation.mutate(
       {
-        problem: roomConfig.problem,
-        difficulty: roomConfig.difficulty.toLowerCase(),
+        problem: data.problem,
+        difficulty: data.difficulty?.toLowerCase(),
+        scheduledAt: data.scheduledAt,
       },
       {
         onSuccess: (data) => {
           setShowCreateModal(false);
-          navigate(`/session/${data.session._id}`);
+          // if scheduled, maybe show toast instead of navigating right away? 
+          // Requirement says "immediate sessions still work", "scheduled work cleanly"
+          // If scheduled, stay on dashboard. If active, navigate.
+          if (data.session.status === "active") {
+            navigate(`/session/${data.session._id}`);
+          } else {
+            toast.success("Session scheduled successfully!");
+          }
         },
       }
     );
