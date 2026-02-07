@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 import { Loader2, Mail, Lock, LogIn } from "lucide-react";
 import BackgroundSquares from "../components/BackgroundSquares";
 import GlassCard from "../components/GlassCard";
-import { GoogleLogin } from "@react-oauth/google";
 import toast from "react-hot-toast";
 
 const LoginPage = () => {
@@ -14,7 +13,7 @@ const LoginPage = () => {
         password: "",
     });
 
-    const { login, googleLogin, isLoggingIn } = useAuth();
+    const { login, isLoggingIn } = useAuth();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -92,26 +91,6 @@ const LoginPage = () => {
                             )}
                         </button>
                     </form>
-
-                    <div className="mt-6">
-                        <div className="relative">
-                            <div className="absolute inset-0 flex items-center">
-                                <div className="w-full border-t border-white/10"></div>
-                            </div>
-                            <div className="relative flex justify-center text-sm">
-                                <span className="px-2 bg-black/50 text-gray-500 rounded">Or continue with</span>
-                            </div>
-                        </div>
-
-                        <div className="mt-6 flex justify-center">
-                            <GoogleLogin
-                                onSuccess={googleLogin}
-                                onError={() => toast.error("Google Login Failed")}
-                                theme="filled_black"
-                                shape="pill"
-                            />
-                        </div>
-                    </div>
 
                     <div className="text-center mt-6">
                         <p className="text-sm text-gray-400">
